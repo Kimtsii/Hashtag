@@ -117,7 +117,7 @@ func main() {
 
 	{
 		feed := get_latest_fb_post()
-		exists, existing_fb_post := check_for_fb_post_in_airtable(feed.MsgHashTags)
+		exists, existing_fb_post := check_for_fb_post_in_airtable(feed.Id)
 		fmt.Println("Hashtag exists is ", exists)
 		var hashtagCount = len(feed.MsgHashTags)
 		fmt.Println(hashtagCount)
