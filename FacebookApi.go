@@ -10,7 +10,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABALkX9tuCUiV289VCN1sAhDUk83Fbw3mEgNCUj6I4LFix1hARjDxy1XNZBcAgMeL5nJ4ZC2JHckKXOZBmysFdw5ZAA98voApVYkZAiXc8nBVX8RuPWeh6t8x3tz8GAk3fr1Vcnv41GjKeuCY22pBQHEo62OR01g8XdrlZBfCcjSGWSBsnO5mXy54kkNPvnhDwpn8ZConncTtRdjtrMuvMAcFSvsf263nVLkQueoEAaY1")
+var FbAccessToken string = ("EAAHPmz80hhABAJbATyhyfFZCDieb1JCxeVAcyGSZBh7Cxxs5E5yvlA2G0Qwd2MyPPR9AveSy0HLirz8k7PXctTtFZCDRJyXvp2sH4vInodRu7TihZA0ZBjHUwnN06IzWZAfeiFo2IagbRxwJwzFHEdZCdGmTAhY2y3OdvzlIRJ2VRf8jBsrv8cmdtqkMGQz7VF1u57qNZApLAB9dEcGeC2cf4nRYgSZA8TyVREKwf3ZB2MvQUf89p9ptie")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -47,9 +47,7 @@ func parse_for_hashtags(message string) []string {
 	// var hashtags = make([]string,0,100)
 
 	possibletags := strings.Fields(message) // Split message on spaces
-	fmt.Println("ssss")
 	for _, value := range possibletags {
-		fmt.Println(value)
 		if strings.HasPrefix(value, "#") {
 			fmt.Println("found hashtag: ", value)
 			hashtags = append(hashtags, value)
@@ -57,7 +55,6 @@ func parse_for_hashtags(message string) []string {
 		}
 	}
 
-	fmt.Println(strings.Fields(message))
 	fmt.Println("test: ", hashtags)
 
 	// return strings.Fields(message)
@@ -89,9 +86,6 @@ func get_latest_fb_post() FacebookPost {
 	feed.MsgHashTags = parse_for_hashtags(feed.Message)
 	//fmt.Println("latest post shares is", feed.FeedFromShares.Count)
 	//fmt.Println("latest post react is", feed.FeedFromReact.Count)
-	fmt.Println(feed.MsgHashTags)
-	fmt.Println("wtf")
-
 	return feed
 }
 
@@ -123,17 +117,13 @@ func main() {
 
 	{
 		feed := get_latest_fb_post()
-		exists, existing_fb_post := check_for_fb_post_in_airtable(feed.Id)
+		exists, existing_fb_post := check_for_fb_post_in_airtable(feed.MsgHashTags)
 		fmt.Println("Hashtag exists is ", exists)
-
-		fmt.Println("www ")
-		fmt.Println(feed.MsgHashTags[0])
 		var hashtagCount = len(feed.MsgHashTags)
 		fmt.Println(hashtagCount)
 
 		if exists == false {
 			fmt.Println("no existing record, adding it")
-
 			for i := 0; i < hashtagCount; i++ {
 				fmt.Println("Hastag: ", feed.MsgHashTags[i])
 				recordsToSend := &airtable.Records{
@@ -141,7 +131,7 @@ func main() {
 						{
 							Fields: map[string]interface{}{
 								//"Hashtag": feed.MsgHashTags,
-								"Notes": feed.MsgHashTags[i],
+								"Hashtag": feed.MsgHashTags[i],
 								//"Shares":       feed.FeedFromShares.Count,
 								"Last Used": feed.CreatedTime,
 							},
@@ -184,34 +174,34 @@ func main() {
 			fmt.Println("record found updating it", existing_fb_post)
 			fmt.Println("record found, " + existing_fb_post.ID + " updating it")
 
-			for i := 0; i < hashtagCount; i++ {
-				fmt.Println("Hastag: ", feed.MsgHashTags[i])
-				toUpdateRecords := &airtable.Records{
-					Records: []*airtable.Record{
+			/*	for i := 0; i < hashtagCount; i++ {
+					fmt.Println("Hastag: ", feed.MsgHashTags[i])
+					toUpdateRecords := &airtable.Records{
+						Records: []*airtable.Record{
 
-						{
-							ID: existing_fb_post.ID,
-							Fields: map[string]interface{}{
-								"Notes": feed.MsgHashTags[i],
-								//"Message":      feed.Message,
-								"Last Used": feed.CreatedTime,
-								//"Shares":       feed.FeedFromShares.Count
+							{
+								ID: existing_fb_post.ID,
+								Fields: map[string]interface{}{
+									"Hashtag": feed.MsgHashTags[i],
+									//"Message":      feed.Message,
+									"Last Used": feed.CreatedTime,
+									//"Shares":       feed.FeedFromShares.Count
 
+								},
 							},
 						},
-					},
-				}
-				updatedRecords, err := AirTableHashTagTable.UpdateRecords(toUpdateRecords)
-				if err != nil {
-					// Handle error
-					panic(err)
-				}
+					}
+					updatedRecords, err := AirTableHashTagTable.UpdateRecords(toUpdateRecords)
+					if err != nil {
+						// Handle error
+						panic(err)
+					}
 
-				for i := 0; i < len(toUpdateRecords.Records); i++ {
-					fmt.Print(updatedRecords.Records[i].ID)
+					for i := 0; i < len(toUpdateRecords.Records); i++ {
+						fmt.Print(updatedRecords.Records[i].ID)
+					}
 				}
-			}
-
+			*/
 			// toUpdateRecords := &airtable.Records{
 			// 	Records: []*airtable.Record{
 
