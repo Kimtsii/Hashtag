@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"reflect"
+	//"reflect"
 	"strings"
 
 	fb "github.com/huandu/facebook/v2"
@@ -10,7 +10,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABACV27Gs6X0wosSSvRVAnmp4wJ34ZBfUZBhv9vfs1ICD9aDrD0ijCdb2pdkufHEbWogg5FuU0vZCzTy9dLZCZCkGbN7FFBW6JSyMJIK3LRYxII154WNiYNKuoerhileOmwsn2mnhZA6EQ6o2NLywRwEOBKDSbe9ZAOml4N31etzMZBdWHZCLwxk8bJhmNTOWEvq6ZCuWIFqyDPKKX03n7ihQjob1FEC8VPehGQCMFmzZBTK8	")
+var FbAccessToken string = ("EAAHPmz80hhABAKwSVf8kG74eFuN8YqTI3yIb4LU3IZCY82kTnKCyKprK8bMgwUcvxXoOXPb6RbcUli1CyRk1XSueI1PIUjZBOhUgB6WlvjbVV9C8lQSmDZCwXdZBvHZBG8X3KJn9EqZCvRrPQPtpsN5e5fMtiqZAD4sgJuBFpujBKqVFyK7vzhmOH7jiPKHLl8S6ZC4DKMF7cGWqEfxSpNQoDTTzXPSM6v5WqdAw4mxPZBVXK0QbgPF92	")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -55,8 +55,6 @@ func parse_for_hashtags(message string) []string {
 		}
 	}
 
-	fmt.Println("HASHTAGS: ", hashtags)
-
 	// return strings.Fields(message)
 	return hashtags
 }
@@ -89,38 +87,37 @@ func get_latest_fb_post() FacebookPost {
 	return feed
 }
 
-func check_for_fb_post_in_airtable(facebook_id string) (bool, *airtable.Record) {
+// func check_for_fb_post_in_airtable(facebook_id string) (bool, *airtable.Record) {
 
-	record := new(airtable.Record)
+// 	record := new(airtable.Record)
+// 	fmt.Println("checking if the hashtag: ", facebook_id, " exist")
+// 	records, err := AirTableHashTagTable.GetRecords().
+// 		FromView("Grid view").
+// 		ReturnFields("Hashtag").
+// 		MaxRecords(1).
+// 		Do()
+// 	fmt.Println("records length is ", len(records.Records))
+// 	//fmt.Println("err is ", err)
 
-	fmt.Println("checking if the hashtag: ", facebook_id, " in the table")
-	records, err := AirTableHashTagTable.GetRecords().
-		FromView("Grid view").
-		ReturnFields("Hashtag").
-		MaxRecords(1).
-		Do()
-	fmt.Println("records length is ", len(records.Records))
-	//fmt.Println("err is ", err)
+// 	if err == nil && len(records.Records) == 1 {
+// 		record = records.Records[0]
+// 		fmt.Println("record type is: ", reflect.TypeOf(record))
+// 		fmt.Println("record is: ", record)
+// 		return true, record
+// 	} else {
+// 		fmt.Println("received error: ", err)
+// 		return false, record
+// 	}
+// }
 
-	if err == nil && len(records.Records) == 1 {
-		record = records.Records[0]
-		fmt.Println("record type is: ", reflect.TypeOf(record))
-		fmt.Println("record is: ", record)
-		return true, record
-	} else {
-		fmt.Println("received error: ", err)
-		return false, record
-	}
-}
-
-func contains(MsgHashTags []string, v string) bool {
-	for _, s := range MsgHashTags {
-		if v == s {
-			return true
-		}
-	}
-	return false
-}
+// func contains(MsgHashTags []string, v string) bool {
+// 	for _, s := range MsgHashTags {
+// 		if v == s {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
 //  Really need to test for a whole bunch of different conditions
 
@@ -139,19 +136,17 @@ func main() {
 			panic(err)
 		}
 		for i := 0; i < len(records.Records); i++ {
-			fmt.Print(records.Records[i].ID, ", ", records.Records[i].Fields["Hashtag"], "\n")
+			fmt.Print(records.Records[i].Fields["Hashtag"], "\n")
 
 		}
 
 		feed := get_latest_fb_post()
-		exists, existing_fb_post := check_for_fb_post_in_airtable(feed.CreatedTime)
-		fmt.Println("Hashtag exists is ", exists)
 		var hashtagCount = len(feed.MsgHashTags)
-		if exists == true {
+		fmt.Println(feed.CreatedTime)
+		{
 
 			fmt.Println("no existing record, adding it")
 			for i := 0; i < hashtagCount; i++ {
-
 				//	fmt.Println(contains([]string{feed.MsgHashTags[i]}, feed.MsgHashTags[i]))
 				//	fmt.Println(feed.MsgHashTags[i])
 				recordsToSend := &airtable.Records{
@@ -176,17 +171,14 @@ func main() {
 				}
 
 				for i := 0; i < len(receivedRecords.Records); i++ {
-					fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
+					//	fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
 
 				}
 			}
 
-		} else {
-			fmt.Println("record found updating it", existing_fb_post)
-			fmt.Println("record found, " + existing_fb_post.ID + " updating it")
-
 		}
 
+		//for reference
 		arr := [5]int{10, 20, 30, 40, 50}
 		var element int = 100
 
