@@ -10,7 +10,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABAJbATyhyfFZCDieb1JCxeVAcyGSZBh7Cxxs5E5yvlA2G0Qwd2MyPPR9AveSy0HLirz8k7PXctTtFZCDRJyXvp2sH4vInodRu7TihZA0ZBjHUwnN06IzWZAfeiFo2IagbRxwJwzFHEdZCdGmTAhY2y3OdvzlIRJ2VRf8jBsrv8cmdtqkMGQz7VF1u57qNZApLAB9dEcGeC2cf4nRYgSZA8TyVREKwf3ZB2MvQUf89p9ptie")
+var FbAccessToken string = ("EAAHPmz80hhABACV27Gs6X0wosSSvRVAnmp4wJ34ZBfUZBhv9vfs1ICD9aDrD0ijCdb2pdkufHEbWogg5FuU0vZCzTy9dLZCZCkGbN7FFBW6JSyMJIK3LRYxII154WNiYNKuoerhileOmwsn2mnhZA6EQ6o2NLywRwEOBKDSbe9ZAOml4N31etzMZBdWHZCLwxk8bJhmNTOWEvq6ZCuWIFqyDPKKX03n7ihQjob1FEC8VPehGQCMFmzZBTK8	")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -55,7 +55,7 @@ func parse_for_hashtags(message string) []string {
 		}
 	}
 
-	fmt.Println("test: ", hashtags)
+	fmt.Println("HASHTAGS: ", hashtags)
 
 	// return strings.Fields(message)
 	return hashtags
@@ -85,20 +85,22 @@ func get_latest_fb_post() FacebookPost {
 	fmt.Println("latest post message is: ", feed.Message)
 	feed.MsgHashTags = parse_for_hashtags(feed.Message)
 	//fmt.Println("latest post shares is", feed.FeedFromShares.Count)
-	//fmt.Println("latest post react is", feed.FeedFromReact.Count)
+	//fmt.Println("latest post react is", feed.FeedFromReact.Count)\
 	return feed
 }
 
 func check_for_fb_post_in_airtable(facebook_id string) (bool, *airtable.Record) {
+
 	record := new(airtable.Record)
-	fmt.Println("checking if the hashtag: ", facebook_id, " already exists")
+
+	fmt.Println("checking if the hashtag: ", facebook_id, " in the table")
 	records, err := AirTableHashTagTable.GetRecords().
 		FromView("Grid view").
 		ReturnFields("Hashtag").
 		MaxRecords(1).
 		Do()
 	fmt.Println("records length is ", len(records.Records))
-	fmt.Println("err is ", err)
+	//fmt.Println("err is ", err)
 
 	if err == nil && len(records.Records) == 1 {
 		record = records.Records[0]
@@ -111,21 +113,47 @@ func check_for_fb_post_in_airtable(facebook_id string) (bool, *airtable.Record) 
 	}
 }
 
+func contains(MsgHashTags []string, v string) bool {
+	for _, s := range MsgHashTags {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
+
 //  Really need to test for a whole bunch of different conditions
 
 func main() {
 
 	{
+		client := airtable.NewClient("keyOmJMHGYoQpMxYw")
+		table := client.GetTable("appQntnFzrheCxlir", "Hashtags")
+
+		records, err := table.GetRecords().
+			FromView("Grid view").
+			ReturnFields("Hashtag").
+			Do()
+		if err != nil {
+			// Handle error
+			panic(err)
+		}
+		for i := 0; i < len(records.Records); i++ {
+			fmt.Print(records.Records[i].ID, ", ", records.Records[i].Fields["Hashtag"], "\n")
+
+		}
+
 		feed := get_latest_fb_post()
-		exists, existing_fb_post := check_for_fb_post_in_airtable(feed.Id)
+		exists, existing_fb_post := check_for_fb_post_in_airtable(feed.CreatedTime)
 		fmt.Println("Hashtag exists is ", exists)
 		var hashtagCount = len(feed.MsgHashTags)
-		fmt.Println(hashtagCount)
+		if exists == true {
 
-		if exists == false {
 			fmt.Println("no existing record, adding it")
 			for i := 0; i < hashtagCount; i++ {
-				fmt.Println("Hastag: ", feed.MsgHashTags[i])
+
+				//	fmt.Println(contains([]string{feed.MsgHashTags[i]}, feed.MsgHashTags[i]))
+				//	fmt.Println(feed.MsgHashTags[i])
 				recordsToSend := &airtable.Records{
 					Records: []*airtable.Record{
 						{
@@ -140,95 +168,119 @@ func main() {
 				}
 
 				receivedRecords, err := AirTableHashTagTable.AddRecords(recordsToSend)
-				fmt.Println(recordsToSend)
-				fmt.Println(reflect.TypeOf(err))
-				fmt.Println(reflect.TypeOf(receivedRecords))
+				//fmt.Println(recordsToSend)
+				//fmt.Println(reflect.TypeOf(err), "No error")
+				//fmt.Println(reflect.TypeOf(receivedRecords), "check")
 				if err != nil {
 					fmt.Println("Error writing records: ", err)
 				}
-				fmt.Println(receivedRecords)
+
+				for i := 0; i < len(receivedRecords.Records); i++ {
+					fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
+
+				}
 			}
 
-			// recordsToSend := &airtable.Records{
-			// 	Records: []*airtable.Record{
-			// 		{
-			// 			Fields: map[string]interface{}{
-			// 				//"Hashtag": feed.MsgHashTags,
-			// 				"Notes": feed.MsgHashTags[0],
-			// 				//"Shares":       feed.FeedFromShares.Count,
-			// 				"Last Used": feed.CreatedTime,
-			// 			},
-			// 		},
-			// 	},
-			// }
-
-			// receivedRecords, err := AirTableHashTagTable.AddRecords(recordsToSend)
-			// fmt.Println(recordsToSend)
-			// fmt.Println(reflect.TypeOf(err))
-			// fmt.Println(reflect.TypeOf(receivedRecords))
-			// if err != nil {
-			// 	fmt.Println("Error writing records: ", err)
-			// }
-			// fmt.Println(receivedRecords)
 		} else {
 			fmt.Println("record found updating it", existing_fb_post)
 			fmt.Println("record found, " + existing_fb_post.ID + " updating it")
 
-			/*	for i := 0; i < hashtagCount; i++ {
-					fmt.Println("Hastag: ", feed.MsgHashTags[i])
-					toUpdateRecords := &airtable.Records{
-						Records: []*airtable.Record{
-
-							{
-								ID: existing_fb_post.ID,
-								Fields: map[string]interface{}{
-									"Hashtag": feed.MsgHashTags[i],
-									//"Message":      feed.Message,
-									"Last Used": feed.CreatedTime,
-									//"Shares":       feed.FeedFromShares.Count
-
-								},
-							},
-						},
-					}
-					updatedRecords, err := AirTableHashTagTable.UpdateRecords(toUpdateRecords)
-					if err != nil {
-						// Handle error
-						panic(err)
-					}
-
-					for i := 0; i < len(toUpdateRecords.Records); i++ {
-						fmt.Print(updatedRecords.Records[i].ID)
-					}
-				}
-			*/
-			// toUpdateRecords := &airtable.Records{
-			// 	Records: []*airtable.Record{
-
-			// 		{
-			// 			ID: existing_fb_post.ID,
-			// 			Fields: map[string]interface{}{
-			// 				"Notes": feed.MsgHashTags[0],
-			// 				//"Message":      feed.Message,
-			// 				"Last Used": feed.CreatedTime,
-			// 				//"Shares":       feed.FeedFromShares.Count
-
-			// 			},
-			// 		},
-			// 	},
-			// }
-			// updatedRecords, err := AirTableHashTagTable.UpdateRecords(toUpdateRecords)
-			// if err != nil {
-			// 	// Handle error
-			// 	panic(err)
-			// }
-
-			// for i := 0; i < len(toUpdateRecords.Records); i++ {
-			// 	fmt.Print(updatedRecords.Records[i].ID)
-			// }
-
 		}
 
+		arr := [5]int{10, 20, 30, 40, 50}
+		var element int = 100
+
+		var result bool = false
+		for _, x := range arr {
+			if x == element {
+				result = true
+				break
+			}
+		}
+
+		if result {
+			fmt.Print("Element is present in the array.")
+		} else {
+			fmt.Print("Element is NOT present in the array.")
+		}
+		// 	{
+		// 	client := airtable.NewClient("keyOmJMHGYoQpMxYw")
+		// 	table := client.GetTable("appQntnFzrheCxlir", "Hashtags")
+
+		// 	records, err := table.GetRecords().
+		// 		FromView("Grid view").
+		// 		ReturnFields("Hashtag").
+		// 		Do()
+		// 	if err != nil {
+		// 		// Handle error
+		// 		panic(err)
+		// 	} else {
+		// 		for i := 0; i < hashtagCount; i++ {
+		// 			if feed.MsgHashTags[i] == records.Records[i].Fields["Hashtag"] {
+		// 				fmt.Println("Hashtag that exist: ", feed.MsgHashTags[i])
+
+		// 			} else {
+		// 				toUpdateRecords := &airtable.Records{
+		// 					Records: []*airtable.Record{
+		// 						{
+		// 							ID: existing_fb_post.ID,
+		// 							Fields: map[string]interface{}{
+		// 								"Hashtag": feed.MsgHashTags[i],
+		// 								//"Message":      feed.Message,
+		// 								"Last Used": feed.CreatedTime,
+		// 								//"Shares":       feed.FeedFromShares.Count
+		// 							},
+		// 						},
+		// 					},
+		// 				}
+		// 				updatedRecords, err := AirTableHashTagTable.UpdateRecords(toUpdateRecords)
+		// 				if err != nil {
+		// 					// Handle error
+
+		// 					panic(err)
+
+		// 				}
+		// 				for i := 0; i < len(toUpdateRecords.Records); i++ {
+		// 					fmt.Println(updatedRecords.Records[i].Fields["Hashtag"])
+		// 				}
+
+		// 			}
+
+		// 		}
+		// 	}
+
+		// 	// toUpdateRecords := &airtable.Records{
+		// 	// 	Records: []*airtable.Record{
+
+		// 	// 		{
+		// 	// 			ID: existing_fb_post.ID,
+		// 	// 			Fields: map[string]interface{}{
+		// 	// 				"Notes": feed.MsgHashTags[0],
+		// 	// 				//"Message":      feed.Message,
+		// 	// 				"Last Used": feed.CreatedTime,
+		// 	// 				//"Shares":       feed.FeedFromShares.Count
+
+		// 	// 			},
+		// 	// 		},
+		// 	// 	},
+		// 	// }
+		// 	// updatedRecords, err := AirTableHashTagTable.UpdateRecords(toUpdateRecords)
+		// 	// if err != nil {
+		// 	// 	// Handle error
+		// 	// 	panic(err)
+		// 	// }
+
+		// 	// for i := 0; i < len(toUpdateRecords.Records); i++ {
+		// 	// 	fmt.Print(updatedRecords.Records[i].ID)
+		// 	// }
+
+		// }
+
 	}
+
+	// fmt.Println(AirTableHashTagTable.GetRecords().
+	// 	FromView("Grid view").
+	// 	ReturnFields("Hashtag").
+	// 	Do())
 
 }
