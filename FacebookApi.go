@@ -10,7 +10,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABAKwSVf8kG74eFuN8YqTI3yIb4LU3IZCY82kTnKCyKprK8bMgwUcvxXoOXPb6RbcUli1CyRk1XSueI1PIUjZBOhUgB6WlvjbVV9C8lQSmDZCwXdZBvHZBG8X3KJn9EqZCvRrPQPtpsN5e5fMtiqZAD4sgJuBFpujBKqVFyK7vzhmOH7jiPKHLl8S6ZC4DKMF7cGWqEfxSpNQoDTTzXPSM6v5WqdAw4mxPZBVXK0QbgPF92	")
+var FbAccessToken string = ("EAAHPmz80hhABAKAFMURp4ZCmpy8FP8jiFB1gM81hJhouB2HGq0aNOmJHdr5gIBY2InmcNZAHsIZCwxxFEeSgUuH3NsxVsDCUTZAhUZBtpj9u6ZClzcCXbcHGSKL1oR1I9xdSedPVf6sOuAAdz5ZCeqF5ozsGP8gXLwIgReZBrxdawYSJuLfQa9CvBy2WV72upwsEz5K7jcuIBU1fMt5xe4sskIxEXEXvcPI9ryxmT3AlD9FfGdB7P5uo	")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -136,65 +136,87 @@ func main() {
 			panic(err)
 		}
 		for i := 0; i < len(records.Records); i++ {
-			fmt.Print(records.Records[i].Fields["Hashtag"], "\n")
-
+			fmt.Print(records.Records[i].Fields, "\n")
 		}
 
 		feed := get_latest_fb_post()
-		var hashtagCount = len(feed.MsgHashTags)
+		//	var hashtagCount = len(feed.MsgHashTags)
 		fmt.Println(feed.CreatedTime)
-		{
 
-			fmt.Println("no existing record, adding it")
-			for i := 0; i < hashtagCount; i++ {
-				//	fmt.Println(contains([]string{feed.MsgHashTags[i]}, feed.MsgHashTags[i]))
-				//	fmt.Println(feed.MsgHashTags[i])
-				recordsToSend := &airtable.Records{
-					Records: []*airtable.Record{
-						{
-							Fields: map[string]interface{}{
-								//"Hashtag": feed.MsgHashTags,
-								"Hashtag": feed.MsgHashTags[i],
-								//"Shares":       feed.FeedFromShares.Count,
-								"Last Used": feed.CreatedTime,
-							},
-						},
-					},
-				}
+		fmt.Println("no existing record, adding it")
+		for i := 0; i < len(records.Records); i++ {
 
-				receivedRecords, err := AirTableHashTagTable.AddRecords(recordsToSend)
-				//fmt.Println(recordsToSend)
-				//fmt.Println(reflect.TypeOf(err), "No error")
-				//fmt.Println(reflect.TypeOf(receivedRecords), "check")
-				if err != nil {
-					fmt.Println("Error writing records: ", err)
-				}
+			arr := records.Records[i].Fields
+			fmt.Println("RECORD:", records.Records[i].Fields)
+			var element string = feed.MsgHashTags[i]
+			fmt.Println("MESSAGES:", feed.MsgHashTags[i])
 
-				for i := 0; i < len(receivedRecords.Records); i++ {
-					//	fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
-
+			var result bool = false
+			for _, x := range arr {
+				if x == element {
+					result = true
+					break
 				}
 			}
 
+			if result {
+				fmt.Println("FOUND IT", element)
+			} else {
+				fmt.Println("Element is not present in the array.", records.Records[i].Fields)
+			}
+			// if feed.MsgHashTags[i] == records.Records[i].Fields["Hashtag"] {
+			// 	fmt.Println("FOUND IT!")
+			// } else {
+			// 	fmt.Println("Happy", records.Records[i].Fields["Hashtag"])
+			// }
+
+			//	fmt.Println(contains([]string{feed.MsgHashTags[i]}, feed.MsgHashTags[i]))
+			//	fmt.Println(feed.MsgHashTags[i])
+
+			recordsToSend := &airtable.Records{
+				Records: []*airtable.Record{
+					{
+						Fields: map[string]interface{}{
+							//"Hashtag": feed.MsgHashTags,
+							"Hashtag": feed.MsgHashTags[i],
+							//"Shares":       feed.FeedFromShares.Count,
+							"Last Used": feed.CreatedTime,
+						},
+					},
+				},
+			}
+
+			receivedRecords, err := AirTableHashTagTable.AddRecords(recordsToSend)
+			//fmt.Println(recordsToSend)
+			//fmt.Println(reflect.TypeOf(err), "No error")
+			//fmt.Println(reflect.TypeOf(receivedRecords), "check")
+			if err != nil {
+				fmt.Println("Error writing records: ", err)
+			}
+
+			for i := 0; i < len(receivedRecords.Records); i++ {
+				//	fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
+
+			}
 		}
 
 		//for reference
-		arr := [5]int{10, 20, 30, 40, 50}
-		var element int = 100
+		// arr := [6]string{"haha", "sip", "locked"}
+		// var element string = "hah2a"
 
-		var result bool = false
-		for _, x := range arr {
-			if x == element {
-				result = true
-				break
-			}
-		}
+		// var result bool = false
+		// for _, x := range arr {
+		// 	if x == element {
+		// 		result = true
+		// 		break
+		// 	}
+		// }
 
-		if result {
-			fmt.Print("Element is present in the array.")
-		} else {
-			fmt.Print("Element is NOT present in the array.")
-		}
+		// if result {
+		// 	fmt.Print("Element is present in the array.")
+		// } else {
+		// 	fmt.Print("Element is not present in the array.")
+		// }
 		// 	{
 		// 	client := airtable.NewClient("keyOmJMHGYoQpMxYw")
 		// 	table := client.GetTable("appQntnFzrheCxlir", "Hashtags")
