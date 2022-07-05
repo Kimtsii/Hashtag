@@ -10,7 +10,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABAMs7P01mSEIA9E7EB11UUdKa16xhzhtJBF05kwoTHs1qpZARAeH2YXmheKMrQ3obgTmGswGQSBxbJmLYXeJ3bWPWjx3NzzReV2RZA2njkrCnFkKfNnovhmEhGuXkzpMZCm6M7FVIMlxVup19CWZBImmmxBeauZCtkcBL6QtGwgcqrn3kfeyALShGYkU6OMJSoQynoMks2hRE2ir43yZAw3XVbloKZA6fkhz1rtVdZC0N	")
+var FbAccessToken string = ("EAAHPmz80hhABANKttQHhzco4QaPGezGVWbSkmUcQVQZC1ru7doNqOkhu402ztuEhOJHw1TjlQNf5G8uiqp6cGN3z3AlpVM3eQmzOsvUqUXTHBRFoMfMDXD7LqfVD9ShUMmfxVyiZBjLwiau3kqJ6mCb9vL8gh8mELQyCrURAzxsBjsILNGwG1yHfCaEf8FVxxMSkQcSS89fZCpWzIP4BWXfwiAHn8E4YSZC9iMioUGFr0kgxYII9	")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -137,6 +137,7 @@ func main() {
 		}
 		for i := 0; i < len(records.Records); i++ {
 			fmt.Print(records.Records[i].Fields, "\n")
+
 		}
 
 		feed := get_latest_fb_post()
@@ -146,87 +147,101 @@ func main() {
 		fmt.Println("no existing record, adding it")
 
 		//	for i := 0; i < len(records.Records); i++
+		//for i, element1 := range records.Records
+
+		//	for i, element := range records.Records
 		for i := 0; i < hashtagCount; i++ {
+			{
 
-			arr := records.Records[i].Fields
-			//	fmt.Println("RECORD:", records.Records[i].Fields)
-			var element string = feed.MsgHashTags[i]
-			//	fmt.Println("MESSAGES:", feed.MsgHashTags[i])
+				var arr = records.Records[i].Fields
+				//	fmt.Println("RECORD:", records.Records[i].Fields)
+				var element1 string = feed.MsgHashTags[2]
+				//	fmt.Println("MESSAGES:", feed.MsgHashTags[i])
 
-			var result bool = false
-			for _, x := range arr {
-				if x == element {
-					result = true
+				var result bool = false
+				for _, x := range arr {
+					if x == element1 {
+						result = true
+						break
+					}
+				}
+
+				if result {
+					fmt.Println("Element", element1, "is present in the array:", arr)
+					fmt.Println("Checking if its newer or not")
+
+					if feed.CreatedTime == records.Records[i].CreatedTime {
+						fmt.Println("TRUE")
+					} else {
+						fmt.Println("VALUE IS NOT NEW, UPDATING THE DATE...")
+					}
+
+					// toUpdateRecords := &airtable.Records{
+					// 	Records: []*airtable.Record{
+
+					// 		{
+					// 			ID: records.Records[i].ID,
+					// 			Fields: map[string]interface{}{
+					// 				//"FacebookID":   feed.Id,
+					// 				// "Message":      feed.Message,
+					// 				// "Created Time": feed.CreatedTime,
+					// 				"Count": "FOUND",
+					// 				//"Created Time": feed.CreatedTime,
+					// 			},
+					// 		},
+					// 	},
+					// }
+					// updatedRecords, err := AirTableFbPostsTable.UpdateRecords(toUpdateRecords)
+					// if err != nil {
+					// 	// Handle error
+					// 	panic(err)
+					// }
+
+					// for i := 0; i < len(toUpdateRecords.Records); i++ {
+					// 	fmt.Print(updatedRecords.Records[i].ID)
+					// }
 					break
+
+				} else {
+					fmt.Println("Element", element1, "is not present in the array:", arr)
+					//	fmt.Println(records.Records[i].Fields)
+
+					// recordsToSend := &airtable.Records{
+					// 	Records: []*airtable.Record{
+					// 		{
+					// 			Fields: map[string]interface{}{
+					// 				//"Hashtag": feed.MsgHashTags,
+					// 				"Hashtag": feed.MsgHashTags[i],
+					// 				//"Shares":       feed.FeedFromShares.Count,
+					// 				"Last Used": feed.CreatedTime,
+					// 			},
+					// 		},
+					// 	},
+					// }
+
+					// receivedRecords, err := AirTableHashTagTable.AddRecords(recordsToSend)
+					// //fmt.Println(recordsToSend)
+					// //fmt.Println(reflect.TypeOf(err), "No error")
+					// //fmt.Println(reflect.TypeOf(receivedRecords), "check")
+					// if err != nil {
+					// 	fmt.Println("Error writing records: ", err)
+					// }
+
+					// for i := 0; i < len(receivedRecords.Records); i++ {
+					// 	//	fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
+
+					// }
 				}
+				// if feed.MsgHashTags[i] == records.Records[i].Fields["Hashtag"] {
+				// 	fmt.Println("FOUND IT!")
+				// } else {
+				// 	fmt.Println("Happy", records.Records[i].Fields["Hashtag"])
+				// }
+
+				//	fmt.Println(contains([]string{feed.MsgHashTags[i]}, feed.MsgHashTags[i]))
+				//	fmt.Println(feed.MsgHashTags[i])
+
 			}
-
-			if result {
-				fmt.Println("FOUND IT", element)
-
-				toUpdateRecords := &airtable.Records{
-					Records: []*airtable.Record{
-
-						{
-							ID: records.Records[i].ID,
-							Fields: map[string]interface{}{
-								//"FacebookID":   feed.Id,
-								// "Message":      feed.Message,
-								// "Created Time": feed.CreatedTime,
-								"Count": "FOUND",
-								//"Created Time": feed.CreatedTime,
-							},
-						},
-					},
-				}
-				updatedRecords, err := AirTableFbPostsTable.UpdateRecords(toUpdateRecords)
-				if err != nil {
-					// Handle error
-					panic(err)
-				}
-
-				for i := 0; i < len(toUpdateRecords.Records); i++ {
-					fmt.Print(updatedRecords.Records[i].ID)
-				}
-
-			} else {
-				fmt.Println("Element is not present in the array:", element)
-
-				recordsToSend := &airtable.Records{
-					Records: []*airtable.Record{
-						{
-							Fields: map[string]interface{}{
-								//"Hashtag": feed.MsgHashTags,
-								"Hashtag": feed.MsgHashTags[i],
-								//"Shares":       feed.FeedFromShares.Count,
-								"Last Used": feed.CreatedTime,
-							},
-						},
-					},
-				}
-
-				receivedRecords, err := AirTableHashTagTable.AddRecords(recordsToSend)
-				//fmt.Println(recordsToSend)
-				//fmt.Println(reflect.TypeOf(err), "No error")
-				//fmt.Println(reflect.TypeOf(receivedRecords), "check")
-				if err != nil {
-					fmt.Println("Error writing records: ", err)
-				}
-
-				for i := 0; i < len(receivedRecords.Records); i++ {
-					//	fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
-
-				}
-			}
-			// if feed.MsgHashTags[i] == records.Records[i].Fields["Hashtag"] {
-			// 	fmt.Println("FOUND IT!")
-			// } else {
-			// 	fmt.Println("Happy", records.Records[i].Fields["Hashtag"])
-			// }
-
-			//	fmt.Println(contains([]string{feed.MsgHashTags[i]}, feed.MsgHashTags[i]))
-			//	fmt.Println(feed.MsgHashTags[i])
-
 		}
 
 		//for reference
