@@ -10,7 +10,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABANKttQHhzco4QaPGezGVWbSkmUcQVQZC1ru7doNqOkhu402ztuEhOJHw1TjlQNf5G8uiqp6cGN3z3AlpVM3eQmzOsvUqUXTHBRFoMfMDXD7LqfVD9ShUMmfxVyiZBjLwiau3kqJ6mCb9vL8gh8mELQyCrURAzxsBjsILNGwG1yHfCaEf8FVxxMSkQcSS89fZCpWzIP4BWXfwiAHn8E4YSZC9iMioUGFr0kgxYII9	")
+var FbAccessToken string = ("EAAHPmz80hhABAGTDuCtesVO3ZAJLMqCFYzmnmLNZCiaDCPr8ZClSS4vZCOskiQoDo4ZBPo2wZAYYpEAb3M69wOoQmKjeXenTbBSurROlcon0RUhHY35wH0vkzk2jvkZAiOsj0nFtnQLlXQZBX3LgZA2U8fQzkx1fT2ZAIFNrMJ8bZCuXhqeHCe6K1iGXFIvLoK1Lr9GfqwTeCIMmPUMZCMj3ToyctFtUUg7sGNlZAxYTJIPjcZCZCmsZAfGAZAzUQ		")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -150,13 +150,41 @@ func main() {
 		//for i, element1 := range records.Records
 
 		//	for i, element := range records.Records
+		for x, element := range records.Records {
+			fmt.Println("At index", x, "value is", element.Fields)
+		}
+		for x, element := range feed.MsgHashTags {
+			fmt.Println("At index", x, "value is", element)
+		}
 		for i := 0; i < hashtagCount; i++ {
 			{
+				// for i := 0; i < len(records.Records); i++ {
+				// 	var arr = records.Records[i].Fields
+				// 	//	fmt.Println("RECORD:", records.Records[i].Fields)
+				// 	var element1 string = feed.MsgHashTags[i]
+				// 	//	fmt.Println("MESSAGES:", feed.MsgHashTags[i])
+
+				// 	var result bool = false
+				// 	for _, x := range arr {
+				// 		if x == element1 {
+				// 			result = true
+				// 			break
+				// 		}
+				// 	}
+
+				// 	if result {
+				// 		fmt.Println("PRINT", arr)
+				// 	} else {
+				// 		fmt.Println("PRINT ALL THE WAY")
+				// 	}
+
+				// }
 
 				var arr = records.Records[i].Fields
-				//	fmt.Println("RECORD:", records.Records[i].Fields)
-				var element1 string = feed.MsgHashTags[2]
-				//	fmt.Println("MESSAGES:", feed.MsgHashTags[i])
+				//fmt.Println("RECORD:", records.Records[i].Fields)
+
+				var element1 string = feed.MsgHashTags[i]
+				//fmt.Println("MESSAGES:", feed.MsgHashTags[i])
 
 				var result bool = false
 				for _, x := range arr {
@@ -171,39 +199,45 @@ func main() {
 					fmt.Println("Checking if its newer or not")
 
 					if feed.CreatedTime == records.Records[i].CreatedTime {
-						fmt.Println("TRUE")
+						fmt.Println("VALUE IS NEW... DO NOTHING")
 					} else {
+
 						fmt.Println("VALUE IS NOT NEW, UPDATING THE DATE...")
+						for x, element := range arr {
+							fmt.Println("At index", x, "value is", element)
+						}
+
+						// toUpdateRecords := &airtable.Records{
+						// 	Records: []*airtable.Record{
+
+						// 		{
+						// 			ID: records.Records[i].ID,
+						// 			Fields: map[string]interface{}{
+						// 				//"FacebookID":   feed.Id,
+						// 				// "Message":      feed.Message,
+						// 				// "Created Time": feed.CreatedTime,
+						// 				"Count": "FOUND",
+						// 				//"Created Time": feed.CreatedTime,
+						// 			},
+						// 		},
+						// 	},
+						// }
+						// updatedRecords, err := AirTableFbPostsTable.UpdateRecords(toUpdateRecords)
+						// if err != nil {
+						// 	// Handle error
+						// 	panic(err)
+						// }
+
+						// for i := 0; i < len(toUpdateRecords.Records); i++ {
+						// 	fmt.Print(updatedRecords.Records[i].ID)
+						// }
 					}
 
-					// toUpdateRecords := &airtable.Records{
-					// 	Records: []*airtable.Record{
-
-					// 		{
-					// 			ID: records.Records[i].ID,
-					// 			Fields: map[string]interface{}{
-					// 				//"FacebookID":   feed.Id,
-					// 				// "Message":      feed.Message,
-					// 				// "Created Time": feed.CreatedTime,
-					// 				"Count": "FOUND",
-					// 				//"Created Time": feed.CreatedTime,
-					// 			},
-					// 		},
-					// 	},
-					// }
-					// updatedRecords, err := AirTableFbPostsTable.UpdateRecords(toUpdateRecords)
-					// if err != nil {
-					// 	// Handle error
-					// 	panic(err)
-					// }
-
-					// for i := 0; i < len(toUpdateRecords.Records); i++ {
-					// 	fmt.Print(updatedRecords.Records[i].ID)
-					// }
 					break
 
 				} else {
 					fmt.Println("Element", element1, "is not present in the array:", arr)
+					fmt.Println("ADDING IT NOW!")
 					//	fmt.Println(records.Records[i].Fields)
 
 					// recordsToSend := &airtable.Records{
@@ -232,14 +266,6 @@ func main() {
 
 					// }
 				}
-				// if feed.MsgHashTags[i] == records.Records[i].Fields["Hashtag"] {
-				// 	fmt.Println("FOUND IT!")
-				// } else {
-				// 	fmt.Println("Happy", records.Records[i].Fields["Hashtag"])
-				// }
-
-				//	fmt.Println(contains([]string{feed.MsgHashTags[i]}, feed.MsgHashTags[i]))
-				//	fmt.Println(feed.MsgHashTags[i])
 
 			}
 		}
