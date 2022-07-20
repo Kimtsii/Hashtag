@@ -154,27 +154,27 @@ func main() {
 		// initialize a found flag
 
 		//searchString := hashtag
-		for _, x := range newSlice {
-			searchString := hashtag
+		for _, x := range hashtag {
+			searchString := newSlice
 			found := false
-			fmt.Println("CHECKING HASHTAG ===>", x.Fields["Hashtag"])
+			fmt.Println("CHECKING HASHTAG ===>", x)
 			for _, v := range searchString {
 				fmt.Println("Hashtags:", v)
-				if v == x.Fields["Hashtag"] {
+				if x == v.Fields["Hashtag"] {
 					found = true
-					fmt.Println("HASHTAG", x.Fields["Hashtag"], "exist")
+					fmt.Println("HASHTAG", v.Fields["Hashtag"], "exist")
 					fmt.Println("UPDATING HASHTAG...")
 
 					toUpdateRecords := &airtable.Records{
 						Records: []*airtable.Record{
 
 							{
-								ID: x.ID,
+								ID: v.ID,
 								Fields: map[string]interface{}{
 
-									"Hashtag":   x.Fields["Hashtag"],
+									"Hashtag":   v.Fields["Hashtag"],
 									"Last Used": feed.CreatedTime,
-									"Count":     "xaxa",
+									"Count":     "FOUND IT",
 								},
 							},
 						},
@@ -198,7 +198,31 @@ func main() {
 				//    }
 			}
 			if found == false {
-				fmt.Println("HASHTAG", x.Fields["Hashtag"], " does NOT exist")
+				fmt.Println("HASHTAG", x, " does NOT exist")
+				fmt.Println("ADDING IT NOW")
+				//feed := get_latest_fb_post()
+
+				recordsToSend := &airtable.Records{
+					Records: []*airtable.Record{
+						{
+							Fields: map[string]interface{}{
+								"Hashtag":   x,
+								"Last Used": feed.CreatedTime,
+								//"Record ID":       v.ID,
+								//"Created Time": feed.CreatedTime,
+							},
+						},
+					},
+				}
+
+				receivedRecords, err := table.AddRecords(recordsToSend)
+				fmt.Println(recordsToSend)
+				//fmt.Println(reflect.TypeOf(err))
+				//fmt.Println(reflect.TypeOf(receivedRecords))
+				if err != nil {
+					fmt.Println("Error writing records: ", err)
+				}
+				fmt.Println(receivedRecords)
 			}
 
 		}
