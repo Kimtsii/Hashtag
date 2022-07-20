@@ -11,7 +11,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABAB9DiFho1pWM7YAi7jZB0JQ6H9TxPJguABaUO1kroPb9VQCs5iZBZC9DYlFpaEmXcreu3g1YEuDmYJV7utaxNCahZB6aT8KOhvuSLCLBbEedvO05KmQsGJFZCF6YhYFJjZAvE1HQZC648Ql6JSaJVcxYb4ZCKkZC0yVW0dF5WGZAZA8vHGzm3wXUbLIGZBGkpRZCjfuBAHRXsBgEh12LXi1PJoVLti54ZB2iqOzaM0XVcmbIGC		")
+var FbAccessToken string = ("EAAHPmz80hhABALkKpAoZC2wzxX6KPW1THowS4QYjw823Fq012Bym1zZA1OZCu4N7oIsxcEUvebLFeaCiwqpESBCZATHqepMorRSXVZCzRmHbtrMg1JYV6Iq8vhnlKKNYw21tCYPnZCkKFh7t4GZA6YRayfZCRzLl7ETsK59vdFNNTA5natciaDLJw5H2McyuRLn1cBc7pX09SajsZCjrPaQGZCZAIjHPPXhOeMQV68aFLc0skoyzBcnJC1a		")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -143,36 +143,38 @@ func main() {
 		}
 
 		feed := get_latest_fb_post()
-		//var hashtagCount = len(feed.MsgHashTags)
+		// initialize a slice literal
+		newSlice := records.Records
+		hashtag := feed.MsgHashTags
+		// fmt.Println("Data from Airtable:", newSlice)
+		fmt.Println("Data from post:", hashtag)
 
-		//	for i := 0; i < len(records.Records); i++
-		//for i, element1 := range records.Records
+		// initialize the strings to search for
 
-		//	for i, element := range records.Records
+		// initialize a found flag
 
-		for _, element1 := range feed.MsgHashTags {
-			fmt.Println("Checking if hashtag:", element1, "is present")
-			//fmt.Println("Type of", reflect.TypeOf(feed.MsgHashTags))
-
-			for _, element := range records.Records {
-
-				// fmt.Println(element.Fields["Hashtag"])
-				fmt.Println("Is hashtag:", element.Fields["Hashtag"], "equal to", element1)
-
-				if element1 == element.Fields["Hashtag"] {
-					fmt.Println("YES")
-					fmt.Println("RECORD FOUND UPDATING IT:", element)
-					fmt.Println(element.ID)
+		//searchString := hashtag
+		for _, x := range newSlice {
+			searchString := hashtag
+			found := false
+			fmt.Println("CHECKING HASHTAG ===>", x.Fields["Hashtag"])
+			for _, v := range searchString {
+				fmt.Println("Hashtags:", v)
+				if v == x.Fields["Hashtag"] {
+					found = true
+					fmt.Println("HASHTAG", x.Fields["Hashtag"], "exist")
+					fmt.Println("UPDATING HASHTAG...")
 
 					toUpdateRecords := &airtable.Records{
 						Records: []*airtable.Record{
 
 							{
-								ID: element.ID,
+								ID: x.ID,
 								Fields: map[string]interface{}{
 
-									"Hashtag":   element.Fields["Hashtag"],
+									"Hashtag":   x.Fields["Hashtag"],
 									"Last Used": feed.CreatedTime,
+									"Count":     "xaxa",
 								},
 							},
 						},
@@ -187,53 +189,93 @@ func main() {
 						fmt.Println(updatedRecords.Records[i].ID)
 					}
 
-				} else {
-
-					fmt.Println("NO")
-
 				}
-
+				// check if the strings match
+				//    if v == feed.Msghashtags  {
+				// 	 found = true
+				// 	 fmt.Println("The slice contains", searchString, "at index", i)
+				// 	 break
+				//    }
+			}
+			if found == false {
+				fmt.Println("HASHTAG", x.Fields["Hashtag"], " does NOT exist")
 			}
 
 		}
+		// if string not found
+
+		//feed := get_latest_fb_post()
+		//var hashtagCount = len(feed.MsgHashTags)
+
+		//	for i := 0; i < len(records.Records); i++
+		//for i, element1 := range records.Records
+
+		//	for i, element := range records.Records
+
+		// for _, element1 := range feed.MsgHashTags {
+		// 	fmt.Println("Checking if hashtag:", element1, "is present")
+		// 	//fmt.Println("Type of", reflect.TypeOf(feed.MsgHashTags))
+
+		// 	for _, element := range records.Records {
+
+		// 		// fmt.Println(element.Fields["Hashtag"])
+		// 		fmt.Println("Is hashtag:", element.Fields["Hashtag"], "equal to", element1)
+
+		// 		if element1 == element.Fields["Hashtag"] {
+		// 			fmt.Println("YES")
+		// 			fmt.Println("RECORD FOUND UPDATING IT:", element)
+		// 			fmt.Println(element.ID)
+
+		// 			toUpdateRecords := &airtable.Records{
+		// 				Records: []*airtable.Record{
+
+		// 					{
+		// 						ID: element.ID,
+		// 						Fields: map[string]interface{}{
+
+		// 							"Hashtag":   element.Fields["Hashtag"],
+		// 							"Last Used": feed.CreatedTime,
+		// 						},
+		// 					},
+		// 				},
+		// 			}
+		// 			updatedRecords, err := table.UpdateRecords(toUpdateRecords)
+		// 			if err != nil {
+		// 				// Handle error
+		// 				panic(err)
+		// 			}
+
+		// 			for i := 0; i < len(toUpdateRecords.Records); i++ {
+		// 				fmt.Println(updatedRecords.Records[i].ID)
+		// 			}
+
+		// 		} else {
+
+		// 			fmt.Println("NO")
+
+		// 		}
+
+		// 	}
+
+		// }
 		// for _, element := range records.Records {
 		// 	fmt.Println(contains(element, feed.MsgHashTags[1]))
 		// 	//fmt.Println(contains(s, "#Jack"))
 		// }
 
-		//	fmt.Println("Type of", reflect.TypeOf(records.Records))
-
-		// for i := 0; i < hashtagCount; i++ {
-		// 	slice1 := records.Records[i].Fields
-		// 	slice2 := feed.MsgHashTags[i]
-
-		// 	fmt.Printf("%+v\n", difference(slice1, slice2))
-		// }
-
-		//	fmt.Printf("ME AND MY BROKEN HEART %+v\n", difference(slice1, slice2))
-
-		// for i := 0; i < hashtagCount; i++ {
-		// 	{
-		// for i := 0; i < len(records.Records); i++ {
-		// 	var arr = records.Records[i].Fields
-		// 	//	fmt.Println("RECORD:", records.Records[i].Fields)
-		// 	var element1 string = feed.MsgHashTags[i]
-		// 	//	fmt.Println("MESSAGES:", feed.MsgHashTags[i])
-
-		// 	var result bool = false
-		// 	for _, x := range arr {
-		// 		if x == element1 {
-		// 			result = true
-		// 			break
-		// 		}
+		// var result bool = false
+		// for _, x := range records.Records {
+		// 	if x == e {
+		// 		result = true
+		// 		break
 		// 	}
-
 		// 	if result {
-		// 		fmt.Println("PRINT", arr)
+		// 		fmt.Println("PRINT", x)
 		// 	} else {
 		// 		fmt.Println("PRINT ALL THE WAY")
 		// 	}
 
+		// // }
 		// }
 
 		// How to distinguish between the two?
