@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	//"reflect"
 	"strings"
 
@@ -10,7 +11,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABAGTDuCtesVO3ZAJLMqCFYzmnmLNZCiaDCPr8ZClSS4vZCOskiQoDo4ZBPo2wZAYYpEAb3M69wOoQmKjeXenTbBSurROlcon0RUhHY35wH0vkzk2jvkZAiOsj0nFtnQLlXQZBX3LgZA2U8fQzkx1fT2ZAIFNrMJ8bZCuXhqeHCe6K1iGXFIvLoK1Lr9GfqwTeCIMmPUMZCMj3ToyctFtUUg7sGNlZAxYTJIPjcZCZCmsZAfGAZAzUQ		")
+var FbAccessToken string = ("EAAHPmz80hhABAB9DiFho1pWM7YAi7jZB0JQ6H9TxPJguABaUO1kroPb9VQCs5iZBZC9DYlFpaEmXcreu3g1YEuDmYJV7utaxNCahZB6aT8KOhvuSLCLBbEedvO05KmQsGJFZCF6YhYFJjZAvE1HQZC648Ql6JSaJVcxYb4ZCKkZC0yVW0dF5WGZAZA8vHGzm3wXUbLIGZBGkpRZCjfuBAHRXsBgEh12LXi1PJoVLti54ZB2iqOzaM0XVcmbIGC		")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -49,7 +50,7 @@ func parse_for_hashtags(message string) []string {
 	possibletags := strings.Fields(message) // Split message on spaces
 	for _, value := range possibletags {
 		if strings.HasPrefix(value, "#") {
-			fmt.Println("found hashtag: ", value)
+			//fmt.Println("found hashtag: ", value)
 			hashtags = append(hashtags, value)
 
 		}
@@ -110,14 +111,14 @@ func get_latest_fb_post() FacebookPost {
 // 	}
 // }
 
-// func contains(MsgHashTags []string, v string) bool {
-// 	for _, s := range MsgHashTags {
-// 		if v == s {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
+func contains(s []string, v string) bool {
+	for _, s := range s {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
 
 //  Really need to test for a whole bunch of different conditions
 
@@ -135,140 +136,207 @@ func main() {
 			// Handle error
 			panic(err)
 		}
+
 		for i := 0; i < len(records.Records); i++ {
-			fmt.Print(records.Records[i].Fields, "\n")
+			fmt.Print("Current Hashtags:", records.Records[i].Fields["Hashtag"], "\n")
 
 		}
 
 		feed := get_latest_fb_post()
-		var hashtagCount = len(feed.MsgHashTags)
-		fmt.Println(feed.CreatedTime)
-
-		fmt.Println("no existing record, adding it")
+		//var hashtagCount = len(feed.MsgHashTags)
 
 		//	for i := 0; i < len(records.Records); i++
 		//for i, element1 := range records.Records
 
 		//	for i, element := range records.Records
-		for x, element := range records.Records {
-			fmt.Println("At index", x, "value is", element.Fields)
-		}
-		for x, element := range feed.MsgHashTags {
-			fmt.Println("At index", x, "value is", element)
-		}
-		for i := 0; i < hashtagCount; i++ {
-			{
-				// for i := 0; i < len(records.Records); i++ {
-				// 	var arr = records.Records[i].Fields
-				// 	//	fmt.Println("RECORD:", records.Records[i].Fields)
-				// 	var element1 string = feed.MsgHashTags[i]
-				// 	//	fmt.Println("MESSAGES:", feed.MsgHashTags[i])
 
-				// 	var result bool = false
-				// 	for _, x := range arr {
-				// 		if x == element1 {
-				// 			result = true
-				// 			break
-				// 		}
-				// 	}
+		for _, element1 := range feed.MsgHashTags {
+			fmt.Println("Checking if hashtag:", element1, "is present")
+			//fmt.Println("Type of", reflect.TypeOf(feed.MsgHashTags))
 
-				// 	if result {
-				// 		fmt.Println("PRINT", arr)
-				// 	} else {
-				// 		fmt.Println("PRINT ALL THE WAY")
-				// 	}
+			for _, element := range records.Records {
 
-				// }
+				// fmt.Println(element.Fields["Hashtag"])
+				fmt.Println("Is hashtag:", element.Fields["Hashtag"], "equal to", element1)
 
-				var arr = records.Records[i].Fields
-				//fmt.Println("RECORD:", records.Records[i].Fields)
+				if element1 == element.Fields["Hashtag"] {
+					fmt.Println("YES")
+					fmt.Println("RECORD FOUND UPDATING IT:", element)
+					fmt.Println(element.ID)
 
-				var element1 string = feed.MsgHashTags[i]
-				//fmt.Println("MESSAGES:", feed.MsgHashTags[i])
+					toUpdateRecords := &airtable.Records{
+						Records: []*airtable.Record{
 
-				var result bool = false
-				for _, x := range arr {
-					if x == element1 {
-						result = true
-						break
+							{
+								ID: element.ID,
+								Fields: map[string]interface{}{
+
+									"Hashtag":   element.Fields["Hashtag"],
+									"Last Used": feed.CreatedTime,
+								},
+							},
+						},
 					}
-				}
-
-				if result {
-					fmt.Println("Element", element1, "is present in the array:", arr)
-					fmt.Println("Checking if its newer or not")
-
-					if feed.CreatedTime == records.Records[i].CreatedTime {
-						fmt.Println("VALUE IS NEW... DO NOTHING")
-					} else {
-
-						fmt.Println("VALUE IS NOT NEW, UPDATING THE DATE...")
-						for x, element := range arr {
-							fmt.Println("At index", x, "value is", element)
-						}
-
-						// toUpdateRecords := &airtable.Records{
-						// 	Records: []*airtable.Record{
-
-						// 		{
-						// 			ID: records.Records[i].ID,
-						// 			Fields: map[string]interface{}{
-						// 				//"FacebookID":   feed.Id,
-						// 				// "Message":      feed.Message,
-						// 				// "Created Time": feed.CreatedTime,
-						// 				"Count": "FOUND",
-						// 				//"Created Time": feed.CreatedTime,
-						// 			},
-						// 		},
-						// 	},
-						// }
-						// updatedRecords, err := AirTableFbPostsTable.UpdateRecords(toUpdateRecords)
-						// if err != nil {
-						// 	// Handle error
-						// 	panic(err)
-						// }
-
-						// for i := 0; i < len(toUpdateRecords.Records); i++ {
-						// 	fmt.Print(updatedRecords.Records[i].ID)
-						// }
+					updatedRecords, err := table.UpdateRecords(toUpdateRecords)
+					if err != nil {
+						// Handle error
+						panic(err)
 					}
 
-					break
+					for i := 0; i < len(toUpdateRecords.Records); i++ {
+						fmt.Println(updatedRecords.Records[i].ID)
+					}
 
 				} else {
-					fmt.Println("Element", element1, "is not present in the array:", arr)
-					fmt.Println("ADDING IT NOW!")
-					//	fmt.Println(records.Records[i].Fields)
 
-					// recordsToSend := &airtable.Records{
-					// 	Records: []*airtable.Record{
-					// 		{
-					// 			Fields: map[string]interface{}{
-					// 				//"Hashtag": feed.MsgHashTags,
-					// 				"Hashtag": feed.MsgHashTags[i],
-					// 				//"Shares":       feed.FeedFromShares.Count,
-					// 				"Last Used": feed.CreatedTime,
-					// 			},
-					// 		},
-					// 	},
-					// }
+					fmt.Println("NO")
 
-					// receivedRecords, err := AirTableHashTagTable.AddRecords(recordsToSend)
-					// //fmt.Println(recordsToSend)
-					// //fmt.Println(reflect.TypeOf(err), "No error")
-					// //fmt.Println(reflect.TypeOf(receivedRecords), "check")
-					// if err != nil {
-					// 	fmt.Println("Error writing records: ", err)
-					// }
-
-					// for i := 0; i < len(receivedRecords.Records); i++ {
-					// 	//	fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
-
-					// }
 				}
 
 			}
+
 		}
+		// for _, element := range records.Records {
+		// 	fmt.Println(contains(element, feed.MsgHashTags[1]))
+		// 	//fmt.Println(contains(s, "#Jack"))
+		// }
+
+		//	fmt.Println("Type of", reflect.TypeOf(records.Records))
+
+		// for i := 0; i < hashtagCount; i++ {
+		// 	slice1 := records.Records[i].Fields
+		// 	slice2 := feed.MsgHashTags[i]
+
+		// 	fmt.Printf("%+v\n", difference(slice1, slice2))
+		// }
+
+		//	fmt.Printf("ME AND MY BROKEN HEART %+v\n", difference(slice1, slice2))
+
+		// for i := 0; i < hashtagCount; i++ {
+		// 	{
+		// for i := 0; i < len(records.Records); i++ {
+		// 	var arr = records.Records[i].Fields
+		// 	//	fmt.Println("RECORD:", records.Records[i].Fields)
+		// 	var element1 string = feed.MsgHashTags[i]
+		// 	//	fmt.Println("MESSAGES:", feed.MsgHashTags[i])
+
+		// 	var result bool = false
+		// 	for _, x := range arr {
+		// 		if x == element1 {
+		// 			result = true
+		// 			break
+		// 		}
+		// 	}
+
+		// 	if result {
+		// 		fmt.Println("PRINT", arr)
+		// 	} else {
+		// 		fmt.Println("PRINT ALL THE WAY")
+		// 	}
+
+		// }
+
+		// How to distinguish between the two?
+
+		// m1 := map[string]string{"a": feed.MsgHashTags[i]}
+		// m2 := map[*airtable.Record]string{"a": records.Records[i].Fields}
+		// // "a" exists in map
+		// v1 := m1["a"]
+		// fmt.Println("HOOOOOOOy", v1) // 0
+
+		// // "f" does not exist in the map
+		// v2 := m2["a"]
+		// fmt.Println("Check", v2) // 0
+
+		// var arr = records.Records[i].Fields
+		// //fmt.Println("RECORD:", records.Records[i].Fields)
+
+		// var element1 string = feed.MsgHashTags[i]
+		// //fmt.Println("MESSAGES:", feed.MsgHashTags[i])
+
+		// var result bool = false
+		// for _, x := range arr {
+		// 	if x == element1 {
+		// 		result = true
+		// 		break
+		// 	}
+		// }
+
+		// if result {
+		// 	fmt.Println("Element", element1, "is present in the array:", arr)
+		// 	fmt.Println("Checking if its newer or not")
+
+		// 	if feed.CreatedTime == records.Records[i].CreatedTime {
+		// 		fmt.Println("VALUE IS NEW... DO NOTHING")
+		// 	} else {
+
+		// 		fmt.Println("VALUE IS NOT NEW, UPDATING THE DATE...")
+		// 		for x, element := range arr {
+		// 			fmt.Println("At index", x, "value is", element)
+		// 		}
+
+		// 		// toUpdateRecords := &airtable.Records{
+		// 		// 	Records: []*airtable.Record{
+
+		// 		// 		{
+		// 		// 			ID: records.Records[i].ID,
+		// 		// 			Fields: map[string]interface{}{
+		// 		// 				//"FacebookID":   feed.Id,
+		// 		// 				// "Message":      feed.Message,
+		// 		// 				// "Created Time": feed.CreatedTime,
+		// 		// 				"Count": "FOUND",
+		// 		// 				//"Created Time": feed.CreatedTime,
+		// 		// 			},
+		// 		// 		},
+		// 		// 	},
+		// 		// }
+		// 		// updatedRecords, err := AirTableFbPostsTable.UpdateRecords(toUpdateRecords)
+		// 		// if err != nil {
+		// 		// 	// Handle error
+		// 		// 	panic(err)
+		// 		// }
+
+		// 		// for i := 0; i < len(toUpdateRecords.Records); i++ {
+		// 		// 	fmt.Print(updatedRecords.Records[i].ID)
+		// 		// }
+		// 	}
+
+		// 	// break
+
+		// } else {
+		// 	fmt.Println("Element", element1, "is not present in the array:", arr)
+		// 	fmt.Println("ADDING IT NOW!")
+		// 	//	fmt.Println(records.Records[i].Fields)
+
+		// 	// recordsToSend := &airtable.Records{
+		// 	// 	Records: []*airtable.Record{
+		// 	// 		{
+		// 	// 			Fields: map[string]interface{}{
+		// 	// 				//"Hashtag": feed.MsgHashTags,
+		// 	// 				"Hashtag": feed.MsgHashTags[i],
+		// 	// 				//"Shares":       feed.FeedFromShares.Count,
+		// 	// 				"Last Used": feed.CreatedTime,
+		// 	// 			},
+		// 	// 		},
+		// 	// 	},
+		// 	// }
+
+		// 	// receivedRecords, err := AirTableHashTagTable.AddRecords(recordsToSend)
+		// 	// //fmt.Println(recordsToSend)
+		// 	// //fmt.Println(reflect.TypeOf(err), "No error")
+		// 	// //fmt.Println(reflect.TypeOf(receivedRecords), "check")
+		// 	// if err != nil {
+		// 	// 	fmt.Println("Error writing records: ", err)
+		// 	// }
+
+		// 	// for i := 0; i < len(receivedRecords.Records); i++ {
+		// 	// 	//	fmt.Print(receivedRecords.Records[i].Fields["Hashtag"], "\n")
+
+		// 	// }
+		// }
+
+		//}
+		//	}
 
 		//for reference
 		// arr := [6]string{"haha", "sip", "locked"}
