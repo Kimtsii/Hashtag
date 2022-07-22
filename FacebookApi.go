@@ -11,7 +11,7 @@ import (
 )
 
 // You have to set your environment variables properly for either MacOS, Linux, or Windows
-var FbAccessToken string = ("EAAHPmz80hhABALkKpAoZC2wzxX6KPW1THowS4QYjw823Fq012Bym1zZA1OZCu4N7oIsxcEUvebLFeaCiwqpESBCZATHqepMorRSXVZCzRmHbtrMg1JYV6Iq8vhnlKKNYw21tCYPnZCkKFh7t4GZA6YRayfZCRzLl7ETsK59vdFNNTA5natciaDLJw5H2McyuRLn1cBc7pX09SajsZCjrPaQGZCZAIjHPPXhOeMQV68aFLc0skoyzBcnJC1a		")
+var FbAccessToken string = ("EAAHPmz80hhABAKnKenxyeDlKoj7qKzeGH38xDbrh7xHKxnW53MBJbmRR1297Bi6KNAN8wW5m8tSWn9yI9o7hPJZCEX06RZAlUYZBj6ZBPvUM2jppWXYTXPC2jQgpI1I5u2CzJ71vRLq2ZCphm3vgQDBC63QuffW23pytZAta3ZB3jcBpMfbh8CuT2EZBNmqJMxG7izT8ZAFPjFZCNoSwR0g3xxzBrLdpHeyZBdgR03Yv8gDiW1aN5kCiZAh7		")
 var ATClientToken string = ("keyOmJMHGYoQpMxYw")
 var ATBaseID string = ("appQntnFzrheCxlir")
 
@@ -74,7 +74,7 @@ func init() {
 func get_latest_fb_post() FacebookPost {
 	var feed FacebookPost
 
-	result, _ := fb.Get("me/feed?limit=1", fb.Params{
+	result, _ := fb.Get("me/feed?limit=2", fb.Params{
 		"access_token": FbAccessToken,
 	})
 	result.DecodeField("data.0", &feed) // Unmarshal the JSON results into feed struct
@@ -147,7 +147,10 @@ func main() {
 		newSlice := records.Records
 		hashtag := feed.MsgHashTags
 		// fmt.Println("Data from Airtable:", newSlice)
-		fmt.Println("Data from post:", hashtag)
+		fmt.Println("Hashtags from post:", hashtag)
+		if err == nil {
+			fmt.Println("NO HASHTAG FROM POST")
+		}
 
 		// initialize the strings to search for
 
@@ -159,7 +162,7 @@ func main() {
 			found := false
 			fmt.Println("CHECKING HASHTAG ===>", x)
 			for _, v := range searchString {
-				fmt.Println("Hashtags:", v)
+				fmt.Println("Hashtags:", v.Fields["Hashtag"])
 				if x == v.Fields["Hashtag"] {
 					found = true
 					fmt.Println("HASHTAG", v.Fields["Hashtag"], "exist")
@@ -174,7 +177,7 @@ func main() {
 
 									"Hashtag":   v.Fields["Hashtag"],
 									"Last Used": feed.CreatedTime,
-									"Count":     "FOUND IT",
+									"Count":     "UPDATED",
 								},
 							},
 						},
@@ -208,6 +211,7 @@ func main() {
 							Fields: map[string]interface{}{
 								"Hashtag":   x,
 								"Last Used": feed.CreatedTime,
+								"Count":     "ADDED",
 								//"Record ID":       v.ID,
 								//"Created Time": feed.CreatedTime,
 							},
@@ -224,7 +228,6 @@ func main() {
 				}
 				fmt.Println(receivedRecords)
 			}
-
 		}
 		// if string not found
 
