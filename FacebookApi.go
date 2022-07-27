@@ -88,14 +88,14 @@ func get_latest_fb_post() FacebookPost {
 	return feed
 }
 
-func contains(s []string, v string) bool {
-	for _, s := range s {
-		if v == s {
-			return true
-		}
-	}
-	return false
-}
+// func contains(s []string, v string) bool {
+// 	for _, s := range s {
+// 		if v == s {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
 //  Really need to test for a whole bunch of different conditions
 
@@ -115,7 +115,7 @@ func main() {
 		}
 
 		for i := 0; i < len(records.Records); i++ {
-			fmt.Print("Current Hashtags:", records.Records[i].Fields["Hashtag"], "\n")
+			//	fmt.Print("Current Hashtags:", records.Records[i].Fields["Hashtag"], "\n")
 
 		}
 
@@ -134,7 +134,7 @@ func main() {
 			found := false
 			fmt.Println("CHECKING HASHTAG ===>", x)
 			for _, v := range searchString {
-				fmt.Println("Hashtags:", v.Fields["Hashtag"])
+				//	fmt.Println("Hashtags:", v.Fields["Hashtag"])
 				if x == v.Fields["Hashtag"] {
 					found = true
 					fmt.Println("HASHTAG", v.Fields["Hashtag"], "exist")
@@ -149,7 +149,7 @@ func main() {
 
 									"Hashtag":   v.Fields["Hashtag"],
 									"Last Used": feed.CreatedTime,
-									"Count":     "UPDATED",
+									//	"Count":     "UPDATED",
 								},
 							},
 						},
@@ -167,7 +167,7 @@ func main() {
 				}
 
 			}
-			if found == false {
+			if !found {
 				fmt.Println("HASHTAG", x, " does NOT exist")
 				fmt.Println("ADDING IT NOW")
 				//feed := get_latest_fb_post()
@@ -178,7 +178,7 @@ func main() {
 							Fields: map[string]interface{}{
 								"Hashtag":   x,
 								"Last Used": feed.CreatedTime,
-								"Count":     "ADDED",
+								//"Count":     "ADDED",
 								//"Record ID":       v.ID,
 								//"Created Time": feed.CreatedTime,
 							},
