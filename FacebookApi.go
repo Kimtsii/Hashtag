@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	_ "os"
+	"reflect"
 	"strings"
 
 	fb "github.com/huandu/facebook/v2"
@@ -79,7 +80,7 @@ func init() {
 func get_latest_fb_post() FacebookPost {
 	var feed FacebookPost
 
-	result, _ := fb.Get("107704657675864_617731970006461?fields=reactions.summary(true),message,likes,created_time,shares,from&limit=2", fb.Params{
+	result, _ := fb.Get("107704657675864/feed?fields=reactions.summary(true),message,likes,created_time,shares,from&limit=2", fb.Params{
 		"access_token": FbAccessToken,
 	})
 	result.DecodeField("data.0", &feed) // Unmarshal the JSON results into feed struct
@@ -144,6 +145,23 @@ func main() {
 					fmt.Println("HASHTAG", v.Fields["Hashtag"], "exist")
 					fmt.Println("UPDATING HASHTAG...")
 
+					m := v.Fields["Count"]
+					//x++
+					// strVar := "x"
+					// intVar, err := strconv.Atoi(strVar)
+					// fmt.Println(intVar, err, reflect.TypeOf(intVar))
+					fmt.Println(m, "Check")
+					fmt.Println("record type is: ", reflect.TypeOf(m))
+					s := fmt.Sprintf("%f", m)
+					fmt.Println("record type is: ", reflect.TypeOf(s), s)
+
+					strVar := s
+					intValue := 0
+					_, err := fmt.Sscan(strVar, &intValue)
+					fmt.Println(intValue, err, reflect.TypeOf(intValue))
+					//fmt.Println("record type is: ", reflect.TypeOf(s), s)
+					intValue++
+
 					toUpdateRecords := &airtable.Records{
 						Records: []*airtable.Record{
 
@@ -153,7 +171,7 @@ func main() {
 
 									"Hashtag":   v.Fields["Hashtag"],
 									"Last Used": feed.CreatedTime,
-									"Count":     v.Fields["Count"],
+									"Count":     intValue,
 								},
 							},
 						},
@@ -182,7 +200,7 @@ func main() {
 							Fields: map[string]interface{}{
 								"Hashtag":   x,
 								"Last Used": feed.CreatedTime,
-								"Count":     +1,
+								"Count":     1,
 								//"Record ID":       v.ID,
 								//"Created Time": feed.CreatedTime,
 							},
