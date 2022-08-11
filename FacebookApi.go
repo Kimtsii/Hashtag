@@ -2,28 +2,26 @@ package main
 
 import (
 	"fmt"
-	_ "os"
+	"os"
+
+	// _ "os"
 	"reflect"
 	"strings"
+
+	//"package main.go"
 
 	fb "github.com/huandu/facebook/v2"
 	"github.com/mehanizm/airtable"
 )
 
-// type User struct {
-// 	Name string `example:"name"`
-// }
+var FbAccessToken string = os.Getenv("FACEBOOK_API")
+var ATClientToken string = os.Getenv("AT_CLIENT_TOKEN")
+var ATBaseID string = os.Getenv("AT_BASE_ID")
 
-// func (u *User) String() string {
-// 	return fmt.Sprintf("Hi! My name is %s", u.Name)
-// }
-
-var FbAccessToken string = ("EAAHPmz80hhABALeWt0zTDFOVXNUEPG9noL6DSRC40YxnhDSqK4rTFJ8TTYHS3dTjfXCer1inX7PkaqZAFo8XoZAaexcHQd2YC68xdcCAz5BXzWRh9O6yp9Il97TWwIIiYiRZAGaBrCLCtEJVeC9cTRIwN1z90NOmwjbsloBSZAGTK8Pf8WRD				")
-var ATClientToken string = ("keyOmJMHGYoQpMxYw")
-var ATBaseID string = ("appQntnFzrheCxlir")
+//var ATBaseIDa string = os.Getenv("CUSTOM")
 
 // Tables
-var ATFacebookPostsTable string = "Testing"
+var ATFacebookPostsTable string = "Facebook _Post"
 var ATHashtagsTable string = "Hashtags"
 
 type FacebookPost struct {
@@ -126,6 +124,8 @@ func main() {
 
 		feed := get_latest_fb_post()
 		// initialize a slice literal
+		//fmt.Println("Checking", feed.Id)
+		fmt.Println("record type is: ", reflect.TypeOf(feed.Id))
 		newSlice := records.Records
 		hashtag := feed.MsgHashTags
 		// fmt.Println("Data from Airtable:", newSlice)
@@ -172,6 +172,7 @@ func main() {
 									"Hashtag":   v.Fields["Hashtag"],
 									"Last Used": feed.CreatedTime,
 									"Count":     intValue,
+									"Feed_ID":   feed.Id,
 								},
 							},
 						},
@@ -201,6 +202,7 @@ func main() {
 								"Hashtag":   x,
 								"Last Used": feed.CreatedTime,
 								"Count":     1,
+								"Feed_ID":   feed.Id,
 								//"Record ID":       v.ID,
 								//"Created Time": feed.CreatedTime,
 							},
