@@ -14,7 +14,7 @@ import (
 	"github.com/mehanizm/airtable"
 )
 
-var FbAccessToken string = os.Getenv("FACEBOOK_API")
+var FbAccessToken string = os.Getenv("FB_APP_ACCESS_TOKEN")
 var ATClientToken string = os.Getenv("AT_CLIENT_TOKEN")
 var ATBaseID string = os.Getenv("AT_BASE_ID")
 
