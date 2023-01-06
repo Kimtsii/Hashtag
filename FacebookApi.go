@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	//"os"
+
 	// _ "os"
 	"reflect"
 	"strings"
@@ -105,12 +107,12 @@ func main() {
 	//
 
 	{
-		client := airtable.NewClient("keyOmJMHGYoQpMxYw")
+		client := airtable.NewClient("keyNCbwDkhsx0aaJm")
 		table := client.GetTable("appQntnFzrheCxlir", "Hashtags")
 
 		records, err := table.GetRecords().
-			FromView("Grid view").
-			ReturnFields("Hashtag").
+			FromView("Sample").
+			ReturnFields("Hashtag", "Count").
 			Do()
 		if err != nil {
 			// Handle error
@@ -144,6 +146,7 @@ func main() {
 					found = true
 					fmt.Println("HASHTAG", v.Fields["Hashtag"], "exist")
 					fmt.Println("UPDATING HASHTAG...")
+					fmt.Println(v.Fields["Count"], "TANGINA")
 
 					m := v.Fields["Count"]
 					//x++
