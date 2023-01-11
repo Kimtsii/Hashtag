@@ -146,7 +146,6 @@ func main() {
 					found = true
 					fmt.Println("HASHTAG", v.Fields["Hashtag"], "exist")
 					fmt.Println("UPDATING HASHTAG...")
-					fmt.Println(v.Fields["Count"], "TANGINA")
 
 					m := v.Fields["Count"]
 					//x++
