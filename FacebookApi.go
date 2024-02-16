@@ -81,7 +81,7 @@ func get_latest_fb_post() FacebookPost {
 	var feed FacebookPost
 
 	result, _ := fb.Get("107704657675864/feed?fields=reactions.summary(true),message,likes,created_time,shares,from&limit=2", fb.Params{
-		"access_token": "EAAHPmz80hhABO6Nxa1cD640XuRuPZAWIG6SPTIszPTsWbYlZCQWTbnLNV9dYbaW6tZC7bpvGIsjhcZAc83T5T37fmd5YZAV3NEaL0ujxQZAZA6EISBCy62ZCabdCgIHB6XEEWUysNwysjIov4Ec25TZAPNPC1q40ZCJEqF8P0zIXV8Kis8ZARyj78OOiAVyDivfC99vOIMvzZBU5YqLZCjcuAuswsmjoH",
+		"access_token": FbAccessToken,
 	})
 	result.DecodeField("data.0", &feed) // Unmarshal the JSON results into feed struct
 	fmt.Println("latest post ID is: ", feed.Id)
